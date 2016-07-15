@@ -40,6 +40,8 @@ op.addExecutionBlock {
         sleep(5)
         
         print("From Inside NSOperation: Completion of operation")
+        XCPlaygroundPage.currentPage.finishExecution()
+        
     }
 }
 
@@ -54,5 +56,5 @@ op.addObserver(observer, forKeyPath: "isExecuting", options: .New, context: nil)
 operationQueue.addOperation(op)
 
 // Uncomment the below line to see the isCancelled KVO notifications and prevent the operation from executing
-// op.cancel()
+ op.cancel()
 //: [Next](@next)

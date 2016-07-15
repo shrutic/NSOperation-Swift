@@ -36,6 +36,7 @@ op.addExecutionBlock {
             sleep(5)
             
             print("From Inside NSOperation: Completion of operation")
+            XCPlaygroundPage.currentPage.finishExecution()
         }
     }
 }
