@@ -1,60 +1,57 @@
 import Foundation
 
-public class AsynchronousOperation: NSOperation {
+open class AsynchronousOperation: Operation {
     
-    public enum State: String {
-        case Ready, Executing, Finished
-        
-        private var keyPath: String {
-            return "is" +  self.rawValue
+    public enum State {
+        case ready, executing, finished
+
+        fileprivate var keyPath: String {
+            let keyPath: String
+            switch self {
+            case .ready: keyPath = #keyPath(Operation.isReady)
+            case .executing: keyPath = #keyPath(Operation.isExecuting)
+            case .finished: keyPath = #keyPath(Operation.isFinished)
+            }
+            return keyPath
         }
     }
     
-    public var state = State.Ready {
+    open var state = State.ready {
         willSet {
-            willChangeValueForKey(newValue.keyPath)
-            willChangeValueForKey(state.keyPath)
+            willChangeValue(forKey: newValue.keyPath)
+            willChangeValue(forKey: state.keyPath)
         }
         
         didSet {
-            didChangeValueForKey(oldValue.keyPath)
-            didChangeValueForKey(state.keyPath)
+            didChangeValue(forKey: oldValue.keyPath)
+            didChangeValue(forKey: state.keyPath)
         }
     }
     
-    override public var ready: Bool {
-        return super.ready && self.state == .Ready
+    override open var isReady: Bool {
+        return super.isReady && self.state == .ready
     }
     
-    override public var executing: Bool {
-        return self.state == .Executing
+    override open var isExecuting: Bool {
+        return state == .executing
     }
     
-    override public var finished: Bool {
-        return self.state == .Finished
+    override open var isFinished: Bool {
+        return state == .finished
     }
     
-    override public var asynchronous: Bool {
+    override open var isAsynchronous: Bool {
         return true
     }
     
-    private var block: ((operation: AsynchronousOperation) -> ())?
+    private var block: ((_ operation: AsynchronousOperation) -> ())?
     
-    override public func main() {
-        self.block?(operation: self)
-    }
-    
-    convenience init(block: ((operation: AsynchronousOperation) -> ())?) {
-        self.init()
-        self.block = block
-    }
-    
-    override public func start() {
-        if self.cancelled {
-            state = .Finished
+    override open func start() {
+        if self.isCancelled {
+            state = .finished
         } else {
-            self.main() // This should set self.state = .Finished when done with execution
-            state = .Executing
+            self.main() // This should set self.state = .finished when done with execution
+            state = .executing
         }
     }
 }

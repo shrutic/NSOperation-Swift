@@ -1,4 +1,4 @@
-//: [Previous](@previous)
+//: [Previous](@previous)    [Next](@next)
 
 /*: 
  # Asynchronous NSOperation - Solution to run Asynchronous tasks as NSOperation
@@ -33,48 +33,44 @@ Given this important implementation detail, it is obvious that we need to take o
  */
 
 import Foundation
-import XCPlayground
+import PlaygroundSupport
 
-XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
+PlaygroundPage.current.needsIndefiniteExecution = true
 
 class PlaygroundOp: AsynchronousOperation {
     override func main() {
-        if self.cancelled == false {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+        if self.isCancelled == false {
+            DispatchQueue.global().async {
                 defer {
-                    self.state = .Finished
-                    XCPlaygroundPage.currentPage.finishExecution()
+                    self.state = .finished
+                    PlaygroundPage.current.finishExecution()
                 }
-                if !self.cancelled {
-                    print("\nFrom Inside NSOperation: Start of operation\n")
+                if !self.isCancelled {
+                    print("\nPlaygroundOp: Start of operation\n")
                     
                     sleep(5)
                     
-                    print("\nFrom Inside NSOperation: Completion of operation\n")
+                    print("\nPlaygroundOp: Completion of operation\n")
                 }
             }
         } else {
-            self.state = .Finished
+            self.state = .finished
         }
     }
 }
 
 
 
-var operationQueue = NSOperationQueue()
-operationQueue.qualityOfService = .Background
+var operationQueue = OperationQueue()
+operationQueue.qualityOfService = .background
 var op = PlaygroundOp()
 
 // Add observer for NSOperation state KVO to keep track of the operation status
-var observer = KeyValueObserver()
-op.addObserver(observer, forKeyPath: "isFinished", options: .New, context: nil)
-op.addObserver(observer, forKeyPath: "isReady", options: .New, context: nil)
-op.addObserver(observer, forKeyPath: "isCancelled", options: .New, context: nil)
-op.addObserver(observer, forKeyPath: "isExecuting", options: .New, context: nil)
+var observer = KeyValueObserver(of: op)
 
 // Operation is immediately checked for ready state as soon as it is added to the operation queue unless the queue is suspended
 operationQueue.addOperation(op)
 
 // Uncomment the below line to see the isCancelled KVO notifications and prevent the operation from executing
- op.cancel()
+// op.cancel()
 
