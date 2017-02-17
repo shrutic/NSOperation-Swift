@@ -32,22 +32,21 @@ GCD provides 5 queues by default ( one queue that runs on main thread and 4 othe
 //: [Next](@next)
 
 import Foundation
-import XCPlayground
+import PlaygroundSupport
 
-XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
+PlaygroundPage.current.needsIndefiniteExecution = true
 
 // Start dispatch_async  
 print("Task scheduled")
 
-dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-    
+DispatchQueue.global().async {
     print("Task started")
     
     sleep(5) // Representative of long running task
     
     print("Task completed")
     
-    XCPlaygroundPage.currentPage.finishExecution()
+    PlaygroundPage.current.finishExecution()
 }
 
 // Dispatch_async schedules operation and returns immediately even if the operation execution isnt complete

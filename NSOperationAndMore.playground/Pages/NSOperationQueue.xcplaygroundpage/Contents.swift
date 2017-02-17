@@ -24,37 +24,32 @@
  */
 
 import Foundation
-import XCPlayground
+import PlaygroundSupport
 
-XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
+PlaygroundPage.current.needsIndefiniteExecution = true
 
 
-var operationQueue = NSOperationQueue()
-operationQueue.qualityOfService = .Background
-var op = NSBlockOperation()
+var operationQueue = OperationQueue()
+operationQueue.qualityOfService = .background
+var op = BlockOperation()
 weak var weakOpRef = op
 op.addExecutionBlock {
-    if weakOpRef?.cancelled == false {
-        print("From Inside NSOperation: Start of operation")
+    if weakOpRef?.isCancelled == false {
+        print("From inside NSOperation: Start of operation")
         
         sleep(5)
         
-        print("From Inside NSOperation: Completion of operation")
-        XCPlaygroundPage.currentPage.finishExecution()
-        
+        print("From inside NSOperation: Completion of operation")
+        PlaygroundPage.current.finishExecution()
     }
 }
 
 // Add observer for NSOperation state KVO to keep track of the operation status
-var observer = KeyValueObserver()
-op.addObserver(observer, forKeyPath: "isFinished", options: .New, context: nil)
-op.addObserver(observer, forKeyPath: "isReady", options: .New, context: nil)
-op.addObserver(observer, forKeyPath: "isCancelled", options: .New, context: nil)
-op.addObserver(observer, forKeyPath: "isExecuting", options: .New, context: nil)
+var observer = KeyValueObserver(of: op)
 
 // Operation is immediately checked for ready state as soon as it is added to the operation queue unless the queue is suspended
 operationQueue.addOperation(op)
 
 // Uncomment the below line to see the isCancelled KVO notifications and prevent the operation from executing
- op.cancel()
+// op.cancel()
 //: [Next](@next)
